@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Permutation: the roster that heals itself</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f1;--card:#fff;--ink:#0a2e2c;--mut:#4f6b68;--line:#d3dfdc;--pri:#0f766e;--chip:#e1ece9;--ok:#0f8a5f;--bad:#e5321f;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#071a19;--card:#0d2827;--ink:#e6f4f1;--mut:#8fb0ab;--line:#1b3b39;--chip:#14322f;--pri:#2dd4bf;--ok:#34d399;--bad:#ff7a66;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#071a19;--card:#0d2827;--ink:#e6f4f1;--mut:#8fb0ab;--line:#1b3b39;--chip:#14322f;--pri:#2dd4bf;--ok:#34d399;--bad:#ff7a66;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+[hidden]{display:none!important}
+.w{max-width:1040px;margin:0 auto;padding:0 16px}
+.hero{background:#0a2e2c;color:#e6f4f1;padding:28px 0 44px}
+.hero a{color:#e6f4f1;text-decoration:none;margin-left:16px;font-size:14px}
+nav{display:flex;justify-content:space-between;font-weight:800;font-size:18px}
+h1{font-size:clamp(38px,10vw,76px);line-height:1;margin:44px 0 14px;font-weight:800;letter-spacing:-.03em}
+.hero p{max-width:540px;margin:0 0 22px;color:#b9d9d3}
+.btn{border:0;border-radius:8px;padding:11px 16px;font:600 14px "Bricolage Grotesque",system-ui,sans-serif;background:var(--pri);color:#fff;cursor:pointer}
+:root[data-theme="dark"] .btn,.btn.l{color:#04211f}
+.btn.alt{background:#f2a31b;color:#231a00}.btn.ghost{background:var(--chip);color:var(--ink)}.btn.h{background:#2dd4bf;color:#04211f}
+section{padding:38px 0 6px}
+h2{font-size:28px;margin:0 0 6px;letter-spacing:-.02em}
+.sub{color:var(--mut);margin:0 0 16px}
+.bar{display:flex;gap:8px;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:18px 0}
+.kpi{border-left:3px solid var(--pri);padding-left:10px}.kpi b{display:block;font-size:24px}.kpi span{color:var(--mut);font-size:12px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:12px}
+th,td{padding:5px 3px;text-align:center;border-bottom:1px solid var(--line)}
+.chip{border:0;border-radius:6px;width:30px;height:26px;font-weight:800;cursor:pointer}
+.M{background:#f2a31b;color:#231a00}.E{background:#7b61ff;color:#fff}.N{background:#2563eb;color:#fff}
+.off{color:var(--mut)}.gap{color:var(--bad);font-weight:800}
+.heal{display:grid;gap:12px;margin-top:14px}
+.step{padding:8px 10px;border-left:3px solid var(--pri);background:var(--chip);border-radius:6px;margin-bottom:8px;font-size:13px;animation:in .3s}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.b{max-width:85%;padding:8px 11px;border-radius:12px;margin-bottom:8px;font-size:13px;animation:in .3s}
+.out{background:#d7f5c8;color:#102a10;margin-left:auto;border-bottom-right-radius:2px}.inb{background:var(--chip);border-bottom-left-radius:2px}
+.cols{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:720px){.heal{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(4,1fr)}.cols{grid-template-columns:repeat(3,1fr)}.cols.c2{grid-template-columns:repeat(2,1fr)}}
+.plan{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--pri);border-radius:10px;padding:16px}
+.plan.pop{background:#0a2e2c;color:#e6f4f1;border-color:#2dd4bf}.pop .off{color:#9fd3cb}
+.price{font-size:30px;font-weight:800;letter-spacing:-.02em}
+ul{padding:0;margin:12px 0 0;list-style:none}li{padding:8px 0;border-top:1px solid var(--line);font-size:14px}.pop li{border-color:#1f4a47}li span{display:block;font-size:13px}
+pre{white-space:pre-wrap;font:12px/1.5 ui-monospace,Menlo,monospace;background:var(--chip);padding:12px;border-radius:10px;margin-top:14px}
+footer{text-align:center;color:var(--mut);padding:34px 16px;font-size:13px}
+</style></head><body>
+<header class="hero"><div class="w">
+<nav><span>Permutation</span><span><a href="#demo">Demo</a><a href="#plans">Plans</a><a href="#earn">Revenue</a></span></nav>
+<h1>The roster that<br>heals itself.</h1>
+<p>Permutation builds legal, fair, cost-aware rosters for clinics, restaurants and shops. When someone can’t make it, it finds cover in seconds.</p>
+<a href="#demo" style="margin:0"><button class="btn h">Try the live demo</button></a>
+</div></header>
+<main class="w">
+<section id="demo"><h2>Live demo: a diagnostic centre with 12 staff</h2>
+<p class="sub">Generate a roster, then trigger a sick call and watch it heal.</p>
+<div class="bar"><button class="btn" id="gen">Generate roster</button><button class="btn alt" id="sick">Trigger sick call</button><button class="btn ghost" id="rep">Audit report</button></div>
+<div class="kpis" id="kpis"></div>
+<div class="box scroll"><table id="grid"></table></div>
+<p class="sub" style="font-size:12px;margin-top:8px">M is 7 to 3, E is 3 to 11, N is 11 to 7. Tap any shift to mark that person sick. LT is lab tech, PH phlebotomist, RC reception.</p>
+<div class="heal" id="heal" hidden><div class="box"><b>Healing steps</b><div id="steps" style="margin-top:8px"></div></div><div class="box"><b>WhatsApp (simulated)</b><div id="chat" style="margin-top:8px"></div></div></div>
+<pre id="audit" hidden></pre></section>
+<section id="plans"><h2>Plans</h2>
+<p class="sub">Every plan has a monthly base price that includes a set number of employees. Add more employees for a per-person fee. Each plan includes everything in the one before it. Prices are illustrative until validated against the market.</p>
+<div class="cols" id="pg"></div>
+<div class="box" style="margin-top:14px"><b>Price calculator</b> <span class="off">for <b id="sn">40</b> employees</span>
+<input id="sl" type="range" min="5" max="100" value="40" style="width:100%;margin:10px 0"><div id="cr"></div></div></section>
+<section id="earn"><h2>How we earn</h2>
+<div class="cols c2" id="eg"></div>
+<div class="box" style="margin-top:14px"><b>Coming later:</b> a shift pool, where nearby businesses lend vetted staff to each other for a small fee per filled shift.</div></section>
+</main>
+<footer>Permutation, a hackathon prototype. Names, wages and prices are illustrative.</footer>
+<script>
+const D=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],SN=["Morning","Evening","Night"],REQ=[["LT","PH","RC"],["LT","PH","RC"],["LT"]],RN={LT:"Lab Tech",PH:"Phlebotomist",RC:"Reception"},W={LT:250,PH:180,RC:150},
+ST=[["Aarav","LT",3,[6]],["Meera","LT",5,[0]],["Rohan","LT",2,[3]],["Sana","LT",7,[1]],["Vikram","LT",4,[5]],["Priya","PH",3,[2]],["Karan","PH",6,[4]],["Isha","PH",2,[6]],["Dev","PH",5,[0]],["Neha","RC",4,[1]],["Arjun","RC",3,[5]],["Pooja","RC",6,[3]]];
+let R,sick,log,busy=false;
+const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const sh=(i,d)=>{if(d<0||d>6)return -1;for(let s=0;s<3;s++)if(R[d][s].includes(i))return s;return -1};
+const tot=i=>D.reduce((n,_,d)=>n+(sh(i,d)>=0),0),nig=i=>D.reduce((n,_,d)=>n+(sh(i,d)==2),0),wk=i=>[5,6].reduce((n,d)=>n+(sh(i,d)>=0),0);
+const bad=(p,n)=>p>=0&&n>=0&&(p==2?n<2:p==1&&n==0);
+const ok=(i,d,s)=>!ST[i][3].includes(d)&&!sick.has(i+"-"+d)&&sh(i,d)<0&&tot(i)<5&&!bad(sh(i,d-1),s)&&!bad(s,sh(i,d+1));
+const sc=(i,d,s)=>tot(i)*10+(s==2?nig(i)*8:0)+(d>4?wk(i)*6:0)+ST[i][2]*.5;
+const cands=(role,d,s)=>ST.map((_,i)=>i).filter(i=>ST[i][1]==role&&ok(i,d,s)).sort((a,b)=>sc(a,d,s)-sc(b,d,s));
+const gaps=()=>R.flat(2).filter(x=>x===null).length;
+function viol(){let n=0;ST.forEach((p,i)=>{if(tot(i)>5)n++;D.forEach((_,d)=>{const s=sh(i,d);if(s<0)return;if(p[3].includes(d)||sick.has(i+"-"+d))n++;if(bad(sh(i,d-1),s))n++})});return n}
+function gen(){R=D.map(()=>REQ.map(r=>r.map(()=>null)));sick=new Set();log=[];
+for(let d=0;d<7;d++)for(const s of [2,0,1])REQ[s].forEach((role,k)=>{const c=cands(role,d,s);if(c.length)R[d][s][k]=c[0]});
+$("heal").hidden=$("audit").hidden=true;render()}
+function render(){const g=gaps(),v=viol(),rs=["LT","PH","RC"];
+const sp=Math.max(...rs.map(r=>{const t=ST.map((p,i)=>p[1]==r?tot(i):null).filter(x=>x!==null);return Math.max(...t)-Math.min(...t)})),
+lt=ST.map((p,i)=>p[1]=="LT"?nig(i):null).filter(x=>x!==null),fair=Math.max(0,100-9*sp-7*(Math.max(...lt)-Math.min(...lt)));
+let cost=0;R.forEach(a=>a.forEach((x,s)=>x.forEach((i,k)=>{if(i!==null)cost+=8*W[REQ[s][k]]})));
+$("kpis").innerHTML=[[g+v,"Conflicts",g+v?"var(--bad)":"var(--ok)"],[v?v+" issues":"Pass","Legal rules check",v?"var(--bad)":"var(--ok)"],[fair+"/100","Fairness score","inherit"],["₹"+cost.toLocaleString("en-IN"),"Weekly cost, no overtime","inherit"]].map(k=>"<div class=kpi><b style='color:"+k[2]+"'>"+k[0]+"</b><span>"+k[1]+"</span></div>").join("");
+let h="<tr><th style='text-align:left'>Staff</th>"+D.map((x,d)=>"<th"+(d>4?" style='color:var(--pri)'":"")+">"+x+"</th>").join("")+"</tr>";
+ST.forEach((p,i)=>{h+="<tr><td style='text-align:left;white-space:nowrap'><b>"+p[0]+"</b> <small class=off>"+p[1]+"</small></td>"+D.map((_,d)=>{const s=sh(i,d);return "<td>"+(sick.has(i+"-"+d)?"🤒":s>=0?"<button class='chip "+"MEN"[s]+"' data-i="+i+" data-d="+d+" data-s="+s+">"+"MEN"[s]+"</button>":p[3].includes(d)?"<span class=off>off</span>":"<span class=off>-</span>")+"</td>"}).join("")+"</tr>"});
+h+="<tr><td style='text-align:left'><b>Unfilled</b></td>"+D.map((_,d)=>{const n=R[d].flat().filter(x=>x===null).length;return "<td class="+(n?"gap>-"+n:"off>0")+"</td>"}).join("")+"</tr>";
+$("grid").innerHTML=h}
+$("grid").onclick=e=>{const b=e.target.closest(".chip");if(b)sickCall(+b.dataset.i,+b.dataset.d,+b.dataset.s)};
+async function sickCall(i,d,s){if(busy)return;busy=true;const p=ST[i],role=p[1],k=R[d][s].indexOf(i),when=D[d]+" "+SN[s];
+sick.add(i+"-"+d);R[d][s][k]=null;render();$("heal").hidden=false;$("steps").innerHTML=$("chat").innerHTML="";$("heal").scrollIntoView({behavior:"smooth",block:"nearest"});
+const st=t=>$("steps").insertAdjacentHTML("beforeend","<div class=step>"+t+"</div>"),ch=(t,o)=>$("chat").insertAdjacentHTML("beforeend","<div class='b "+(o?"out":"inb")+"'>"+t+"</div>");
+st("📞 "+p[0]+" called in sick for <b>"+when+"</b> ("+RN[role]+"). The roster now has a gap.");await sleep(800);
+st("🧠 Re-solving: availability, skills, rest gaps, 40-hour cap, fairness and distance.");await sleep(900);
+const c=cands(role,d,s);
+if(!c.length){st("⚠️ No eligible cover found. Escalating to the manager.");busy=false;return}
+st("🏅 Ranked cover: "+c.slice(0,3).map((j,n)=>(n+1)+". "+ST[j][0]+" ("+tot(j)+" shifts, "+ST[j][2]+" km)").join(", "));await sleep(900);
+for(let n=0;n<Math.min(c.length,3);n++){const j=c[n],q=ST[j][0];
+ch("Hi "+q+", can you cover <b>"+when+"</b> ("+RN[role]+")? Reply YES or NO",1);await sleep(1000);
+if(n==0&&c.length>1){ch("NO, sorry, I’m away today");st("↩️ "+q+" declined. Asking the next person.");await sleep(800)}
+else{ch("YES ✅");R[d][s][k]=j;render();st("✅ <b>"+q+"</b> accepted. Roster healed. Conflicts now: "+(gaps()+viol())+".");log.push("Sick call: "+p[0]+", "+when+", covered by "+q+" (offer "+(n+1)+")");break}}
+busy=false}
+$("sick").onclick=()=>{if(busy)return;for(const[d,s,k] of [[2,0,0],[2,1,0],[3,0,0],[1,0,0]]){const i=R[d][s][k];if(i!==null){sickCall(i,d,s);return}}};
+$("gen").onclick=()=>{if(!busy)gen()};
+$("rep").onclick=()=>{const v=viol(),g=gaps();$("audit").hidden=false;$("audit").textContent=["Permutation compliance audit (demo week)","Generated: "+new Date().toLocaleString(),"",
+(ST.every((_,i)=>tot(i)<=5)?"PASS":"FAIL")+"  Max 5 shifts (40 h) per employee",
+(v?"FAIL":"PASS")+"  Rest gaps of 11 h or more, availability respected ("+v+" breaches)",
+"PASS  Skill match on every assigned slot",
+(g?"FAIL":"PASS")+"  Coverage: "+g+" unfilled slots","","Event log:",...(log.length?log:["No changes since roster generation."])].join("\n")};
+const P=[["Primary","₹499","per month, includes 10 employees. Extra employees ₹30 each per month","Get organized",[["Automatic scheduling","Weekly roster from availability, skills and shift needs"],["Conflict detection","Flags overlaps, gaps and missing qualifications"],["Availability and edits","Staff add availability, managers adjust any shift"],["Basic hour warnings","Alerts before the weekly limit is crossed"]]],
+["Pro","₹1,499","per month, includes 15 employees. Extra employees ₹60 each per month","Everything in Primary, plus",[["Self-healing replacement","Finds cover and sends WhatsApp offers until someone says yes"],["Fair workload","Balances nights and weekends with a visible score"],["Cost analysis","Compares roster costs, never by leaving shifts empty"],["Compliance rules built in","Rest gaps and hour caps make illegal rosters impossible"],["Shift swaps","Only legal swaps go through"],["Up to 2 locations",""]]],
+["Max","₹3,999","per month, includes 20 employees. Extra employees ₹100 each per month","Everything in Pro, plus",[["Multi-location dashboard","Every branch in one view, with staff moves and cost comparison"],["Compliance audit reports","One-click proof for inspections"],["Demand forecasting","Staff matched to expected busy and quiet hours"],["Integrations","POS, biometric and payroll systems"],["Regional-language messages","In the staff’s own language"],["Priority support and all upcoming features",""]]]];
+$("pg").innerHTML=P.map((p,n)=>"<div class='plan"+(n==1?" pop":"")+"'><h3 style='margin:0'>"+p[0]+(n==1?" (most popular)":"")+"</h3><div class=off style='font-size:13px'>"+p[3]+"</div><div class=price style='margin-top:10px'>"+p[1]+"</div><div class=off style='font-size:13px'>"+p[2]+"</div><ul>"+p[4].map(f=>"<li><b>"+f[0]+"</b>"+(f[1]?"<span class=off>"+f[1]+"</span>":"")+"</li>").join("")+"</ul></div>").join("");
+$("eg").innerHTML=[["Base plan fee","Every client pays a monthly fee for Primary, Pro or Max, with a team size included."],["Extra employees","Clients who grow past their included team pay per added employee, at their plan’s rate."],["Upgrades","Clients move from Primary to Pro to Max for healing, cost analysis, compliance and multi-location."],["Add-ons","WhatsApp message credits, POS, biometric and payroll integrations, and setup fees."]].map(e=>"<div class=box><b>"+e[0]+"</b><div class=off style='font-size:14px'>"+e[1]+"</div></div>").join("");
+const PL=[["Primary",499,10,30],["Pro",1499,15,60],["Max",3999,20,100]];
+const calc=()=>{const n=+$("sl").value;$("sn").textContent=n;$("cr").innerHTML=PL.map(p=>{const x=Math.max(0,n-p[2]);return "<div style='display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line)'><span><b>"+p[0]+"</b> <span class=off style='font-size:12px'>base ₹"+p[1].toLocaleString("en-IN")+(x?", "+x+" extra":", all included")+"</span></span><b>₹"+(p[1]+x*p[3]).toLocaleString("en-IN")+" a month</b></div>"}).join("")};
+$("sl").oninput=calc;calc();
+gen();
+</script></body></html>
